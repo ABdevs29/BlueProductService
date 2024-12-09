@@ -1,5 +1,6 @@
 package com.learn.abdevs29.blueproductservice.controllers;
 
+import com.learn.abdevs29.blueproductservice.models.Category;
 import com.learn.abdevs29.blueproductservice.models.Product;
 import com.learn.abdevs29.blueproductservice.services.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,5 +27,15 @@ public class ProductController {
     @GetMapping("")
     public List<Product> getAllProducts () {
         return productService.getAllProducts();
+    }
+
+    @GetMapping("/category/{name}")
+    public List<Product> getProductsByCategory (@PathVariable("name") String name) {
+        return productService.getProductsByCategory(name);
+    }
+
+    @GetMapping("/categories")
+    public List<Category> getAllCategories () {
+        return productService.getAllCategories();
     }
 }
