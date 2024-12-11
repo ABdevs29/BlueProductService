@@ -1,9 +1,15 @@
 package com.learn.abdevs29.blueproductservice.services;
 
 import com.learn.abdevs29.blueproductservice.dtos.FakeStoreProductDto;
+import com.learn.abdevs29.blueproductservice.exceptions.ProductNotFoundException;
 import com.learn.abdevs29.blueproductservice.models.Category;
 import com.learn.abdevs29.blueproductservice.models.Product;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpMessageConverterExtractor;
+import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -64,6 +70,19 @@ public class FakeStoreProductService implements ProductService{
         return  categories;
     }
 
+    @Override
+    public Product updateProductById(long id, Product product) throws ProductNotFoundException {
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(convertProductToFakeStoreProduct(product), FakeStoreProductDto.class);
+        HttpMessageConverterExtractor<FakeStoreProductDto> responseExtractor = new HttpMessageConverterExtractor(FakeStoreProductDto.class, restTemplate.getMessageConverters());
+        FakeStoreProductDto response = restTemplate.execute("https://fakestoreapi.com/products/" + id, HttpMethod.PUT, requestCallback, responseExtractor);
+
+        if(response == null){
+            throw new ProductNotFoundException("Product not found");
+        }
+
+        return convertFakeStoreProductToProduct(response);
+    }
+
     public Product convertFakeStoreProductToProduct (FakeStoreProductDto fakeStoreProductDto) {
         Product p = new Product();
         p.setName(fakeStoreProductDto.getTitle());
@@ -74,5 +93,15 @@ public class FakeStoreProductService implements ProductService{
         p.setCategory(c);
 
         return p;
+    }
+
+    public FakeStoreProductDto convertProductToFakeStoreProduct (Product product) {
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setTitle(product.getName());
+        fakeStoreProductDto.setDescription(product.getDescription());
+        fakeStoreProductDto.setCategory(product.getCategory().getName());
+        fakeStoreProductDto.setPrice(product.getPrice());
+
+        return fakeStoreProductDto;
     }
 }

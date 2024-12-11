@@ -1,12 +1,11 @@
 package com.learn.abdevs29.blueproductservice.controllers;
 
+import com.learn.abdevs29.blueproductservice.exceptions.ProductNotFoundException;
 import com.learn.abdevs29.blueproductservice.models.Category;
 import com.learn.abdevs29.blueproductservice.models.Product;
 import com.learn.abdevs29.blueproductservice.services.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,5 +36,10 @@ public class ProductController {
     @GetMapping("/categories")
     public List<Category> getAllCategories () {
         return productService.getAllCategories();
+    }
+
+    @PutMapping("/{id}")
+    public Product replaceProductById (@PathVariable("id") long id, @RequestBody Product product) throws ProductNotFoundException {
+        return productService.updateProductById(id, product);
     }
 }
